@@ -1,0 +1,12 @@
+{
+  "app": {
+    "name": "My App",
+    "description": "A sample application"
+  },
+  "common": {
+    "yes": "Yes",
+    "no": "No",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
+  }
+}

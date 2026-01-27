@@ -1,0 +1,12 @@
+{
+  "app": {
+    "name": "마이 앱",
+    "description": "샘플 애플리케이션"
+  },
+  "common": {
+    "yes": "예",
+    "no": "아니오",
+    "cancel": "취소",
+    "confirm": "확인"
+  }
+}

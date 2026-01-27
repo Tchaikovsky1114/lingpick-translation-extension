@@ -1,13 +1,18 @@
 import * as vscode from 'vscode';
-import * as fs from 'fs';
+import * as fs from 'fs/promises';
+import * as fsSync from 'fs';
 import * as path from 'path';
 
 /**
- * Interface for translation input
+ * Regular expression pattern for valid translation keys
  */
-interface TranslationInput {
-  key: string;
-  translations: Map<string, string>;
+const VALID_KEY_PATTERN = /^[a-zA-Z0-9._-]+$/;
+
+/**
+ * Interface for JSON data structure
+ */
+interface JsonObject {
+  [key: string]: string | JsonObject;
 }
 
 /**
@@ -58,7 +63,7 @@ export function activate(context: vscode.ExtensionContext) {
           if (!value || value.trim().length === 0) {
             return 'Key cannot be empty';
           }
-          if (!/^[a-zA-Z0-9._-]+$/.test(value)) {
+          if (!VALID_KEY_PATTERN.test(value)) {
             return 'Key can only contain letters, numbers, dots, hyphens and underscores';
           }
           return null;
@@ -170,13 +175,13 @@ function detectLocaleFromPath(filePath: string): string | null {
  * Add translation to a JSON file
  */
 async function addTranslationToFile(filePath: string, key: string, value: string): Promise<void> {
-  let data: any = {};
+  let data: JsonObject = {};
 
   // Read existing file if it exists
-  if (fs.existsSync(filePath)) {
-    const content = fs.readFileSync(filePath, 'utf8');
+  if (fsSync.existsSync(filePath)) {
+    const content = await fs.readFile(filePath, 'utf8');
     try {
-      data = JSON.parse(content);
+      data = JSON.parse(content) as JsonObject;
     } catch (error) {
       throw new Error(`Invalid JSON in ${filePath}`);
     }
@@ -184,20 +189,21 @@ async function addTranslationToFile(filePath: string, key: string, value: string
 
   // Set nested key
   const keys = key.split('.');
-  let current = data;
+  let current: JsonObject = data;
 
   for (let i = 0; i < keys.length - 1; i++) {
-    if (!current[keys[i]] || typeof current[keys[i]] !== 'object') {
-      current[keys[i]] = {};
+    const currentKey = keys[i];
+    if (!current[currentKey] || typeof current[currentKey] !== 'object' || Array.isArray(current[currentKey])) {
+      current[currentKey] = {};
     }
-    current = current[keys[i]];
+    current = current[currentKey] as JsonObject;
   }
 
   current[keys[keys.length - 1]] = value;
 
   // Write back to file with pretty formatting
   const jsonContent = JSON.stringify(data, null, 2);
-  fs.writeFileSync(filePath, jsonContent + '\n', 'utf8');
+  await fs.writeFile(filePath, jsonContent + '\n', 'utf8');
 }
 
 /**

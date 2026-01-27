@@ -1,0 +1,98 @@
+{
+  "name": "lingpick-translation-extension",
+  "displayName": "i18n Auto Translator",
+  "description": "Automatically translate i18n keys to multiple languages using Gemini API",
+  "version": "0.0.1",
+  "publisher": "myungseong",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:i18nAutoTranslate.addTranslation"
+  ],
+  "main": "./out/extension.js",
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "contributes": {
+    "configuration": [
+      {
+        "title": "i18n Auto Translate",
+        "properties": {
+          "i18nAutomation.languages": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": [
+              "ko",
+              "en",
+              "ja",
+              "hi"
+            ],
+            "description": "List of language codes to translate to"
+          },
+          "i18nAutomation.translationFilesPath": {
+            "type": "string",
+            "default": "src/i18n/{lang}.json",
+            "description": "Path pattern for translation files. Use {lang} as placeholder"
+          },
+          "i18nAutomation.geminiApiKey": {
+            "type": "string",
+            "markdownDescription": "Google Gemini API Key ([get your key](https://aistudio.google.com/apikey))",
+            "order": 1
+          },
+          "i18nAutomation.geminiModel": {
+            "type": "string",
+            "default": "gemini-1.5-flash",
+            "description": "Gemini model to use for translations"
+          }
+        }
+      }
+    ],
+    "commands": [
+      {
+        "command": "i18nAutoTranslate.addTranslation",
+        "title": "Add i18n Translation",
+        "category": "i18n"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "i18nAutoTranslate.addTranslation",
+        "key": "ctrl+shift+t",
+        "mac": "cmd+shift+t",
+        "when": "editorTextFocus"
+      }
+    ]
+  },
+  "keywords": [
+    "i18n",
+    "translation",
+    "gemini",
+    "ai"
+  ],
+  "author": "myungseong",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/myungseong/lingpick-translation-extension.git"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^25.0.10",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.7.1",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1"
+  }
+}

@@ -59,7 +59,7 @@ async function addTranslationHandler(): Promise<void> {
   let translationFilesPath =
     config.get<string>('translationFilesPath') || 'src/i18n/{lang}.json';
   let apiKey = config.get<string>('geminiApiKey');
-  const model = config.get<string>('geminiModel') || 'gemini-1.5-flash';
+  const model = config.get<string>('geminiModel') || 'gemini-2.5-flash';
 
   // 4. Validate and get API key if needed
   if (!apiKey) {
@@ -103,6 +103,8 @@ async function addTranslationHandler(): Promise<void> {
 
   // 7. Translate using Gemini with progress indicator
   let translations;
+  let translationError: string | null = null;
+  
   await vscode.window.withProgress(
     {
       location: vscode.ProgressLocation.Notification,
@@ -111,12 +113,16 @@ async function addTranslationHandler(): Promise<void> {
     },
     async (progress) => {
       progress.report({ increment: 0 });
-      translations = await translateWithGemini(
-        koreanText,
-        languages,
-        apiKey,
-        model,
-      );
+      try {
+        translations = await translateWithGemini(
+          koreanText,
+          languages,
+          apiKey,
+          model,
+        );
+      } catch (error) {
+        translationError = error instanceof Error ? error.message : String(error);
+      }
       progress.report({ increment: 100 });
     },
   );
@@ -137,8 +143,11 @@ async function addTranslationHandler(): Promise<void> {
   const fileList = updatedFiles.map(getRelativePath).join(', ');
 
   if (isFallback) {
+    const errorMsg = translationError 
+      ? ` Error: ${translationError}`
+      : '';
     vscode.window.showWarningMessage(
-      `Translation added with fallback (Korean text). Files updated: ${fileList}`,
+      `Translation added with fallback (Korean text).${errorMsg} Files updated: ${fileList}`,
     );
   } else {
     vscode.window.showInformationMessage(

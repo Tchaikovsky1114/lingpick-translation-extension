@@ -138,26 +138,26 @@ async function addTranslationHandler(): Promise<void> {
   // 8. Check if fallback was used
   const isFallback = Object.values(translations).every((v) => v === koreanText);
 
-  // 9. Update JSON files
-  const translationMap = new Map<string, string>(Object.entries(translations));
-  updateTranslationFiles(filePaths, key, translationMap);
-
-  // 10. Show completion message
-  const updatedFiles = getUpdatedFilePaths(filePaths, translationMap);
-  const fileList = updatedFiles.map(getRelativePath).join(', ');
-
+  // 9. If translation failed (fallback was used), throw error instead of saving
   if (isFallback) {
     const errorMsg = translationError 
       ? ` Error: ${translationError}`
       : '';
-    vscode.window.showWarningMessage(
-      `Translation added with fallback (Korean text).${errorMsg} Files updated: ${fileList}`,
-    );
-  } else {
-    vscode.window.showInformationMessage(
-      `Successfully added translation for key "${key}". Files updated: ${fileList}`,
+    throw new Error(
+      `Translation failed. Key "${key}" was not created.${errorMsg}`,
     );
   }
+
+  // 10. Update JSON files (only if translation succeeded)
+  const translationMap = new Map<string, string>(Object.entries(translations));
+  updateTranslationFiles(filePaths, key, translationMap);
+
+  // 11. Show completion message
+  const updatedFiles = getUpdatedFilePaths(filePaths, translationMap);
+  const fileList = updatedFiles.map(getRelativePath).join(', ');
+  vscode.window.showInformationMessage(
+    `Successfully added translation for key "${key}". Files updated: ${fileList}`,
+  );
 }
 
 export function deactivate() {}

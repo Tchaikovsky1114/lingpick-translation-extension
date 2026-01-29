@@ -2,7 +2,7 @@
   "name": "lingpick-translation-extension",
   "displayName": "i18n Auto Translator",
   "description": "Automatically translate i18n keys to multiple languages using Gemini API",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "publisher": "Myungseong",
   "engines": {
     "vscode": "^1.85.0"

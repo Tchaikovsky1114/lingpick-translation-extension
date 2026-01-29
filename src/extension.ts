@@ -9,9 +9,12 @@ import {
 import { translateWithGemini } from './geminiTranslator';
 
 export function activate(context: vscode.ExtensionContext) {
+  console.log('i18n Auto Translator extension is now active!');
+  
   const disposable = vscode.commands.registerCommand(
     'i18nAutoTranslate.addTranslation',
     async () => {
+      console.log('i18nAutoTranslate.addTranslation command triggered');
       try {
         await addTranslationHandler();
       } catch (error) {
@@ -23,6 +26,7 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   context.subscriptions.push(disposable);
+  console.log('i18nAutoTranslate.addTranslation command registered successfully');
 }
 
 async function addTranslationHandler(): Promise<void> {
